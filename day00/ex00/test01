@@ -1,0 +1,29 @@
+#!/bin/sh
+
+ARG=$1
+
+setup() {
+	[ -z $ARG ] && echo "wrong usage" && exit 1
+	GROUP=$(groups $USER | cut -d' ' -f3)
+	TEST="f 0455 $USER $GROUP 40 Jun 1 23:42 testDay00"
+	EXPECT=expected_output
+	OUTPUT="$USER""_output"
+	echo $TEST > $EXPECT
+}
+
+print_result() {
+	diff --color=auto -U 3 $EXPECT $OUTPUT 2>/dev/null
+	[ $? -ne 0 ] && echo "\n""[KO] :-(" && return 0
+	echo "[OK] :-D"
+}
+
+try() {
+	tar -xf $ARG --to-command='echo $TAR_FILETYPE $TAR_MODE $TAR_UNAME $TAR_GNAME $TAR_SIZE `date -d @$TAR_MTIME +%b%t%e%t%R` $TAR_REALNAME' > $OUTPUT 2>/dev/null
+	#tar -tvf $ARG > $OUTPUT
+}
+
+clean() {
+	rm -f $EXPECT $OUTPUT
+}
+
+setup && try && print_result && clean
