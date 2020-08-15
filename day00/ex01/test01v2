@@ -1,0 +1,28 @@
+#!/bin/sh
+
+ARG=$1
+
+setup() {
+	[ -z $ARG ] && echo "wrong usage" && exit 1
+	GROUP=$(groups $USER | cut -d' ' -f3)
+	TEST="-r--r-xr-x $USER/$GROUP 40 2020-06-01 23:42 testDay00"
+	EXPECT=expected_output
+	OUTPUT="$USER""_output"
+	echo $TEST > $EXPECT
+}
+
+print_result() {
+	diff --color=auto -U 3 $EXPECT $OUTPUT 2>/dev/null
+	[ $? -ne 0 ] && echo "\n""[KO] :-(" && return 0
+	echo "[OK] :-D"
+}
+
+try() {
+	tar -tvf $ARG | tr -s ' ' > $OUTPUT
+}
+
+clean() {
+	rm -f $EXPECT $OUTPUT
+}
+
+setup && try && print_result && clean
