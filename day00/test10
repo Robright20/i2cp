@@ -1,0 +1,54 @@
+#!/bin/bash
+
+ft_clean() {
+	rm -rf $EXPECT $OUTPUT $TMP
+	exit 1
+}
+
+setup() {
+	EXPECT=_out
+	OUTPUT=~out
+	FILE=clean
+	TMP=./tmp
+	mkdir -p $TMP/.cache $TMP/.backup
+	touch $TMP/file{1,3} $TMP/.cache/file{0,2}\~ $TMP/.backup/\#file0 $TMP/.backup/\#file{1,3}\#
+	touch $TMP/\~file4 $TMP/.cache/\~file0\~ $TMP/\#file0 $TMP/\#file1\# $TMP/.file\~ $TMP/.\#file\# $TMP/file\#
+	echo "$> \`cat clean\`" > $EXPECT
+	echo "./.backup/#file3#" >> $EXPECT
+	echo "./.backup/#file1#" >> $EXPECT
+	echo "./.cache/~file0~" >> $EXPECT
+	echo "./.cache/file2~" >> $EXPECT
+	echo "./.cache/file0~" >> $EXPECT
+	echo "./.file~" >> $EXPECT
+	echo "./#file1#" >> $EXPECT
+	echo "$> find " >> $EXPECT
+	echo "." >> $EXPECT
+	echo "./.#file#" >> $EXPECT
+	echo "./~file4" >> $EXPECT
+	echo "./.backup" >> $EXPECT
+	echo "./.backup/#file0" >> $EXPECT
+	echo "./.cache" >> $EXPECT
+	echo "./file3" >> $EXPECT
+	echo "./file#" >> $EXPECT
+	echo "./#file0" >> $EXPECT
+	echo "./file1" >> $EXPECT
+}
+
+print_result() {
+	diff --color=auto -U 3 $EXPECT $OUTPUT 2>/dev/null
+	[ $? -ne 0 ] && echo -e "\n\e[31m[KO]\e[0m fail :-(" && ft_clean
+	echo -e "\e[32m[OK]\e[0m Success :-D" && ft_clean
+}
+
+try() {
+	test -f $FILE
+	[ $? -ne 0 ] && echo "[KO] $FILE not found :-(" && ft_clean
+	echo "$> \`cat clean\`" > $OUTPUT
+	pushd $TMP
+	`cat $FILE` > $OUTPUT
+	echo "$> find " >> $OUTPUT
+	find >> $OUTPUT
+	popd
+}
+
+setup && try && print_result
