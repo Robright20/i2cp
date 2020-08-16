@@ -1,0 +1,30 @@
+#!/bin/bash
+
+ft_clean() {
+	rm -rf $EXPECT $OUTPUT $TEST
+	exit 1
+}
+
+setup() {
+	EXPECT=_out
+	OUTPUT=~out
+	TEST=_test
+	FILE=ft_magic
+	for i in {1..42}; do echo "" >> $TEST; done
+	echo "42" >> $TEST
+	echo "$TEST: 42 file" >> $EXPECT
+}
+
+print_result() {
+	diff --color=auto -U 3 $EXPECT $OUTPUT 2>/dev/null
+	[ $? -ne 0 ] && echo -e "\n\e[31m[KO]\e[0m fail :-(" && ft_clean
+	echo -e "\e[32m[OK]\e[0m Success :-D" && ft_clean
+}
+
+try() {
+	test -f $FILE
+	[ $? -ne 0 ] && echo "[KO] $FILE not found :-(" && ft_clean
+	file -m $FILE $TEST | tr -s ' ' > $OUTPUT
+}
+
+setup && try && print_result
