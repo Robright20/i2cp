@@ -1,0 +1,27 @@
+#!/bin/sh
+
+clean() {
+	rm -rf $EXPECT $OUTPUT
+	exit 1
+}
+
+setup() {
+	EXPECT=_z
+	OUTPUT=~z
+	FILE=z
+	echo "Z" | cat -e > $EXPECT
+}
+
+print_result() {
+	diff --color=auto -U 3 $EXPECT $OUTPUT 2>/dev/null
+	[ $? -ne 0 ] && echo "[KO] :-(" && clean
+	echo "[OK] :-D" && clean
+}
+
+try() {
+	test -f $FILE
+	[ $? -ne 0 ] && echo "[KO] :-(" && clean
+	cat -e $FILE > $OUTPUT
+}
+
+setup && try && print_result
