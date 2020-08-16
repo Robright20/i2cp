@@ -1,29 +1,32 @@
 #!/bin/sh
 
-ARG=$1
-
 setup() {
-	[ -z $ARG ] && echo "wrong usage" && exit 1
+	FILE=testDay00.tar
 	GROUP=$(groups $USER | cut -d' ' -f3)
-	TEST="f 0455 $USER $GROUP 40 Jun 1 23:42 testDay00"
-	EXPECT=expected_output
-	OUTPUT="$USER""_output"
+	TEST="-r--r-xr-x 1 $USER $GROUP 40 Jun 1 23:42 testDay00"
+	EXPECT=_out
+	OUTPUT=~out
+	TMP=tmp
+	mkdir -p $TMP
 	echo $TEST > $EXPECT
 }
 
 print_result() {
 	diff --color=auto -U 3 $EXPECT $OUTPUT 2>/dev/null
-	[ $? -ne 0 ] && echo "\n""[KO] :-(" && return 0
-	echo "[OK] :-D"
+	[ $? -ne 0 ] && echo """\e[31m[KO]\e[0m fail :-(" && return 0
+	echo "\e[32m[OK]\e[0m Success :-D"
 }
 
 try() {
-	tar -xf $ARG --to-command='echo $TAR_FILETYPE $TAR_MODE $TAR_UNAME $TAR_GNAME $TAR_SIZE `date -d @$TAR_MTIME +%b%t%e%t%R` $TAR_REALNAME' > $OUTPUT 2>/dev/null
-	#tar -tvf $ARG > $OUTPUT
+	test -f $FILE
+	[ $? -ne 0 ] && echo "\e[31m[KO]\e[0m $FILE not found :-(" && clean
+	tar --one-top-level=$TMP -xpsf $FILE  2>/dev/null
+	ls -l $TMP | tr -s ' ' | sed -e '1d' > $OUTPUT
 }
 
 clean() {
-	rm -f $EXPECT $OUTPUT
+	rm -rf $EXPECT $OUTPUT $TMP
+	exit 1
 }
 
-setup && try && print_result && clean
+setup && try && print_result
