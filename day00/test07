@@ -1,0 +1,36 @@
+#!/bin/bash
+
+clean() {
+	rm -rf $EXPECT $OUTPUT $TMP
+	exit 1
+}
+
+setup() {
+	EXPECT=_out
+	OUTPUT=~out
+	FILE=midLS
+	TMP=./tmp
+	echo "file1, dir2/, file0, file3, dir0/" > $EXPECT
+	mkdir -p $TMP/dir0 $TMP/dir2
+	pushd $TMP > /dev/null
+	touch file1
+	touch --date "Jun 1 2020 15:50" dir2
+	touch --date "Jun 1 2020 14:10" file0
+	touch --date "Jun 1 2020 10:50" file3
+	touch --date "Jun 1 2020 06:50" dir0
+	popd > /dev/null
+}
+
+print_result() {
+	diff --color=auto -U 3 $EXPECT $OUTPUT 2>/dev/null
+	[ $? -ne 0 ] && echo -e "\n\e[31m[KO]\e[0m fail :-(" && clean
+	echo -e "\e[32m[OK]\e[0m Success :-D" && clean
+}
+
+try() {
+	test -f $FILE
+	[ $? -ne 0 ] && echo "[KO] midLS not found :-(" && clean
+	eval "$(cat $FILE) $TMP" > $OUTPUT
+}
+
+setup && try && print_result
