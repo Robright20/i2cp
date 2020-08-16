@@ -1,0 +1,37 @@
+#!/bin/sh
+
+ARG=$1
+
+setup() {
+	[ -z $ARG ] && echo "wrong usage" && exit 1
+	GROUP=$(groups $USER | cut -d' ' -f3)
+	EXPECT=expected_output
+	OUTPUT="$USER""_output"
+	TMP=./tmp
+	echo "drwx--xr-x 2 $USER $GROUP XX Jun 1 20:47 test0" > $EXPECT
+	echo "-rwx--xr-- 1 $USER $GROUP 4 Jun 1 21:46 test1" >> $EXPECT
+	echo "dr-x---r-- 2 $USER $GROUP XX Jun 1 22:45 test2" >> $EXPECT
+	echo "-r-----r-- 2 $USER $GROUP 1 Jun 1 23:44 test3" >> $EXPECT
+	echo "-rw-r----x 1 $USER $GROUP 2 Jun 1 23:43 test4" >> $EXPECT
+	echo "-r-----r-- 2 $USER $GROUP 1 Jun 1 23:44 test5" >> $EXPECT
+	echo "lrwxr-xr-x 1 $USER $GROUP 5 Jun 1 22:20 test6 -> test0" >> $EXPECT
+}
+
+print_result() {
+	diff --color=auto -U 3 $EXPECT $OUTPUT 2>/dev/null
+	[ $? -ne 0 ] && echo "\n""[KO] :-(" && return 0
+	echo "[OK] :-D"
+}
+
+try() {
+	tar -xpsf $ARG --one-top-level=$TMP 2>/dev/null
+	ls -l $TMP | tr -s ' ' > $OUTPUT
+	sed -i '1d' $OUTPUT
+	sed -E -i "/^d/s/$GROUP [0-9]+/$GROUP XX/" $OUTPUT
+}
+
+clean() {
+	rm -rf ex02 $EXPECT $OUTPUT $TMP
+}
+
+setup && try && print_result && clean
