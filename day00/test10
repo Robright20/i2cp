@@ -44,11 +44,12 @@ try() {
 	test -f $FILE
 	[ $? -ne 0 ] && echo "[KO] $FILE not found :-(" && ft_clean
 	echo "$> \`cat clean\`" > $OUTPUT
-	pushd $TMP
-	`cat $FILE` > $OUTPUT
-	echo "$> find " >> $OUTPUT
-	find >> $OUTPUT
-	popd
+	TEST=$(cat $FILE)
+	pushd $TMP > /dev/null
+	eval $TEST >> ../$OUTPUT
+	echo "$> find " >> ../$OUTPUT
+	find >> ../$OUTPUT
+	popd > /dev/null
 }
 
 setup && try && print_result

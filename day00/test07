@@ -29,7 +29,7 @@ print_result() {
 
 try() {
 	test -f $FILE
-	[ $? -ne 0 ] && echo "[KO] midLS not found :-(" && clean
+	[ $? -ne 0 ] && echo "[KO] $FILE not found :-(" && clean
 	eval "$(cat $FILE) $TMP" > $OUTPUT
 }
 
