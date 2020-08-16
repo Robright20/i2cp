@@ -1,12 +1,10 @@
 #!/bin/sh
 
-ARG=$1
-
 setup() {
-	[ -z $ARG ] && echo "wrong usage" && exit 1
+	FILE=ex02.tar
 	GROUP=$(groups $USER | cut -d' ' -f3)
-	EXPECT=expected_output
-	OUTPUT="$USER""_output"
+	EXPECT=_out
+	OUTPUT=~out
 	TMP=./tmp
 	echo "drwx--xr-x 2 $USER $GROUP XX Jun 1 20:47 test0" > $EXPECT
 	echo "-rwx--xr-- 1 $USER $GROUP 4 Jun 1 21:46 test1" >> $EXPECT
@@ -19,12 +17,14 @@ setup() {
 
 print_result() {
 	diff --color=auto -U 3 $EXPECT $OUTPUT 2>/dev/null
-	[ $? -ne 0 ] && echo "\n""[KO] :-(" && return 0
-	echo "[OK] :-D"
+	[ $? -ne 0 ] && echo "\n""\e[31m[KO]\e[0m fail :-(" && clean
+	echo "\e[32m[OK]\e[0m Success :-D" && clean
 }
 
 try() {
-	tar -xpsf $ARG --one-top-level=$TMP 2>/dev/null
+	test -f $FILE
+	[ $? -ne 0 ] && echo "\e[31m[KO]\e[0m $FILE not found :-(" && clean
+	tar -xpsf $FILE --one-top-level=$TMP 2>/dev/null
 	ls -l $TMP | tr -s ' ' > $OUTPUT
 	sed -i '1d' $OUTPUT
 	sed -E -i "/^d/s/$GROUP [0-9]+/$GROUP XX/" $OUTPUT
@@ -32,6 +32,7 @@ try() {
 
 clean() {
 	rm -rf ex02 $EXPECT $OUTPUT $TMP
+	exit 1
 }
 
-setup && try && print_result && clean
+setup && try && print_result
