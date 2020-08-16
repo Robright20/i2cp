@@ -1,0 +1,31 @@
+#!/bin/bash
+
+ft_clean() {
+	rm -rf $EXPECT $OUTPUT a
+	exit 1
+}
+
+setup() {
+	EXPECT=sw.diff
+	OUTPUT=_sw.diff
+	FILE=b
+	RES=resources.tar.gz
+}
+
+print_result() {
+	diff --color=auto -U 3 $EXPECT $OUTPUT 2>/dev/null
+	[ $? -ne 0 ] && echo -e "\n\e[31m[KO]\e[0m fail :-(" && ft_clean
+	echo -e "\e[32m[OK]\e[0m Success :-D" && ft_clean
+}
+
+try() {
+	test -f $FILE
+	[ $? -ne 0 ] && echo -e "\e[31m[KO]\e[0m $FILE not found :-(" && ft_clean
+	test -f $RES
+	[ $? -ne 0 ] && echo -e "\e[31m[KO]\e[0m $RES not found :-(" && ft_clean
+	tar -xzf $RES
+	diff a $FILE > $OUTPUT
+	echo -n ""
+}
+
+setup && try && print_result
