@@ -13,8 +13,8 @@ setup() {
 
 print_result() {
 	diff --color=auto -U 3 $EXPECT $OUTPUT 2>/dev/null
-	[ $? -ne 0 ] && echo """\e[31m[KO]\e[0m fail :-(" && return 0
-	echo "\e[32m[OK]\e[0m Success :-D"
+	[ $? -ne 0 ] && echo """\e[31m[KO]\e[0m fail :-(" && clean
+	echo "\e[32m[OK]\e[0m Success :-D" && clean
 }
 
 try() {
