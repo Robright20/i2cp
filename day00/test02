@@ -1,7 +1,7 @@
 #!/bin/sh
 
 setup() {
-	FILE=ex02.tar
+	FILE=exo2.tar
 	GROUP=$(groups $USER | cut -d' ' -f3)
 	EXPECT=_out
 	OUTPUT=~out
@@ -31,7 +31,7 @@ try() {
 }
 
 clean() {
-	rm -rf ex02 $EXPECT $OUTPUT $TMP
+	rm -rf $FILE $EXPECT $OUTPUT $TMP
 	exit 1
 }
 
