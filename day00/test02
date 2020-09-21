@@ -12,7 +12,7 @@ setup() {
 	echo "-r-----r-- 2 $USER $GROUP 1 Jun 1 23:44 test3" >> $EXPECT
 	echo "-rw-r----x 1 $USER $GROUP 2 Jun 1 23:43 test4" >> $EXPECT
 	echo "-r-----r-- 2 $USER $GROUP 1 Jun 1 23:44 test5" >> $EXPECT
-	echo "lrwxr-xr-x 1 $USER $GROUP 5 Jun 1 22:20 test6 -> test0" >> $EXPECT
+	echo "lrwxrwxrwx 1 $USER $GROUP 5 Jun 1 22:20 test6 -> test0" >> $EXPECT
 }
 
 print_result() {
